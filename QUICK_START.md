@@ -1,53 +1,52 @@
-# Quick Start Guide
+# ⚡ Quick Start - 5 Minute Setup
 
-## Step 1: Apply Database Migrations (2 minutes)
+## Fastest Path to Running the App
 
-### Option A: Via Supabase Dashboard (Easiest) ⭐
+### Option A: Test Without RunPod (Quick Test)
 
-1. Open: https://djszkpgtwhdjhexnjdof.supabase.co
-2. Click **SQL Editor** in left sidebar
-3. Click **New Query**
-4. Open file: `supabase/migrations/20250107000000_initial_schema.sql`
-5. Copy ALL contents (Cmd+A, Cmd+C)
-6. Paste into SQL Editor
-7. Click **Run** (or press Cmd+Enter)
-8. Wait ~10 seconds for completion
-9. Verify: Click **Table Editor** → Should see 10 tables
+1. **Apply Database Migrations** (2 min):
+   - Go to: https://djszkpgtwhdjhexnjdof.supabase.co
+   - SQL Editor → New Query
+   - Copy/paste `supabase/migrations/20250107000000_initial_schema.sql` → Run
+   - Copy/paste `supabase/storage-setup.sql` → Run
 
-### Option B: Via CLI Script
+2. **Set Up Environment** (2 min):
+   ```bash
+   cd app
+   # Create .env.local with just Supabase keys (you already have these)
+   ```
 
-```bash
-./apply-migrations.sh
-```
+3. **Run Locally** (1 min):
+   ```bash
+   npm install
+   npm run dev
+   ```
 
----
-
-## Step 2: Verify Migrations Applied ✅
-
-Run this in SQL Editor:
-
-```sql
-SELECT table_name 
-FROM information_schema.tables 
-WHERE table_schema = 'public' 
-ORDER BY table_name;
-```
-
-Should see:
-- bands
-- band_tracks
-- embeddings
-- generated_tracks
-- oauth_connections
-- user_follows
-- user_history
-- user_library
-- user_playlists
-- users
+**Result**: App runs, but music generation won't work (needs RunPod)
 
 ---
 
-## Step 3: Next.js + Vercel Setup
+### Option B: Full Setup (2 Hours)
 
-See `SETUP_NEXTJS_VERCEL.md` for detailed instructions.
+Follow `START_HERE.md` for complete setup with all features working.
 
+---
+
+## What Works Without RunPod?
+
+✅ Sign up / Login  
+✅ Onboarding  
+✅ Create playlists  
+✅ Like tracks  
+✅ Search  
+✅ Library  
+✅ Settings  
+✅ OAuth connections  
+❌ Music generation (needs RunPod)  
+❌ Audio playback (needs generated tracks)
+
+---
+
+## Recommended: Start with Option A
+
+Test the UI/UX first, then add RunPod for full functionality.

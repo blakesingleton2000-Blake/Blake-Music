@@ -1,7 +1,3 @@
--- Infinite Player - Initial Database Schema
--- Created: January 2025
--- Description: Complete schema for MVP including users, tracks, bands, playlists, and vector search
-
 -- Enable required extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "vector";
@@ -233,48 +229,56 @@ $$ LANGUAGE plpgsql;
 -- ============================================================================
 
 -- Update updated_at on users
+DROP TRIGGER IF EXISTS update_users_updated_at ON users;
 CREATE TRIGGER update_users_updated_at
   BEFORE UPDATE ON users
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at();
 
 -- Update updated_at on bands
+DROP TRIGGER IF EXISTS update_bands_updated_at ON bands;
 CREATE TRIGGER update_bands_updated_at
   BEFORE UPDATE ON bands
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at();
 
 -- Update updated_at on user_playlists
+DROP TRIGGER IF EXISTS update_user_playlists_updated_at ON user_playlists;
 CREATE TRIGGER update_user_playlists_updated_at
   BEFORE UPDATE ON user_playlists
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at();
 
 -- Update updated_at on oauth_connections
+DROP TRIGGER IF EXISTS update_oauth_connections_updated_at ON oauth_connections;
 CREATE TRIGGER update_oauth_connections_updated_at
   BEFORE UPDATE ON oauth_connections
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at();
 
 -- Increment band track count
+DROP TRIGGER IF EXISTS increment_band_track_count_trigger ON band_tracks;
 CREATE TRIGGER increment_band_track_count_trigger
   AFTER INSERT ON band_tracks
   FOR EACH ROW
   EXECUTE FUNCTION increment_band_track_count();
 
 -- Decrement band track count
+DROP TRIGGER IF EXISTS decrement_band_track_count_trigger ON band_tracks;
 CREATE TRIGGER decrement_band_track_count_trigger
   AFTER DELETE ON band_tracks
   FOR EACH ROW
   EXECUTE FUNCTION decrement_band_track_count();
 
 -- Increment band follower count
+DROP TRIGGER IF EXISTS increment_band_follower_count_trigger ON user_follows;
 CREATE TRIGGER increment_band_follower_count_trigger
   AFTER INSERT ON user_follows
   FOR EACH ROW
   EXECUTE FUNCTION increment_band_follower_count();
 
 -- Decrement band follower count
+DROP TRIGGER IF EXISTS decrement_band_follower_count_trigger ON user_follows;
 CREATE TRIGGER decrement_band_follower_count_trigger
   AFTER DELETE ON user_follows
   FOR EACH ROW
@@ -297,69 +301,69 @@ ALTER TABLE user_follows ENABLE ROW LEVEL SECURITY;
 ALTER TABLE oauth_connections ENABLE ROW LEVEL SECURITY;
 
 -- Users policies
-CREATE POLICY "Users can read own profile"
-  ON users FOR SELECT
+DROP POLICY IF EXISTS "Users can read own profile" ON users;
+CREATE POLICY "Users can read own profile" ON users FOR SELECT
   USING (auth.uid() = id);
 
-CREATE POLICY "Users can update own profile"
-  ON users FOR UPDATE
+DROP POLICY IF EXISTS "Users can update own profile" ON users;
+CREATE POLICY "Users can update own profile" ON users FOR UPDATE
   USING (auth.uid() = id);
 
 -- User history policies
-CREATE POLICY "Users can read own history"
-  ON user_history FOR SELECT
+DROP POLICY IF EXISTS "Users can read own history" ON user_history;
+CREATE POLICY "Users can read own history" ON user_history FOR SELECT
   USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can insert own history"
-  ON user_history FOR INSERT
+DROP POLICY IF EXISTS "Users can insert own history" ON user_history;
+CREATE POLICY "Users can insert own history" ON user_history FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
 -- Embeddings policies (public read)
-CREATE POLICY "Anyone can read embeddings"
-  ON embeddings FOR SELECT
+DROP POLICY IF EXISTS "Anyone can read embeddings" ON embeddings;
+CREATE POLICY "Anyone can read embeddings" ON embeddings FOR SELECT
   USING (true);
 
 -- Generated tracks policies
-CREATE POLICY "Users can read own tracks"
-  ON generated_tracks FOR SELECT
+DROP POLICY IF EXISTS "Users can read own tracks" ON generated_tracks;
+CREATE POLICY "Users can read own tracks" ON generated_tracks FOR SELECT
   USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can read public tracks"
-  ON generated_tracks FOR SELECT
+DROP POLICY IF EXISTS "Users can read public tracks" ON generated_tracks;
+CREATE POLICY "Users can read public tracks" ON generated_tracks FOR SELECT
   USING (true); -- Public tracks are visible to all
 
-CREATE POLICY "Users can insert own tracks"
-  ON generated_tracks FOR INSERT
+DROP POLICY IF EXISTS "Users can insert own tracks" ON generated_tracks;
+CREATE POLICY "Users can insert own tracks" ON generated_tracks FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Users can update own tracks"
-  ON generated_tracks FOR UPDATE
+DROP POLICY IF EXISTS "Users can update own tracks" ON generated_tracks;
+CREATE POLICY "Users can update own tracks" ON generated_tracks FOR UPDATE
   USING (auth.uid() = user_id);
 
 -- Bands policies
-CREATE POLICY "Anyone can read public bands"
-  ON bands FOR SELECT
+DROP POLICY IF EXISTS "Anyone can read public bands" ON bands;
+CREATE POLICY "Anyone can read public bands" ON bands FOR SELECT
   USING (is_public = true OR auth.uid() = user_id);
 
-CREATE POLICY "Users can read own bands"
-  ON bands FOR SELECT
+DROP POLICY IF EXISTS "Users can read own bands" ON bands;
+CREATE POLICY "Users can read own bands" ON bands FOR SELECT
   USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can insert own bands"
-  ON bands FOR INSERT
+DROP POLICY IF EXISTS "Users can insert own bands" ON bands;
+CREATE POLICY "Users can insert own bands" ON bands FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Users can update own bands"
-  ON bands FOR UPDATE
+DROP POLICY IF EXISTS "Users can update own bands" ON bands;
+CREATE POLICY "Users can update own bands" ON bands FOR UPDATE
   USING (auth.uid() = user_id);
 
 -- Band tracks policies
-CREATE POLICY "Anyone can read band tracks"
-  ON band_tracks FOR SELECT
+DROP POLICY IF EXISTS "Anyone can read band tracks" ON band_tracks;
+CREATE POLICY "Anyone can read band tracks" ON band_tracks FOR SELECT
   USING (true);
 
-CREATE POLICY "Users can manage own band tracks"
-  ON band_tracks FOR ALL
+DROP POLICY IF EXISTS "Users can manage own band tracks" ON band_tracks;
+CREATE POLICY "Users can manage own band tracks" ON band_tracks FOR ALL
   USING (
     EXISTS (
       SELECT 1 FROM bands
@@ -369,67 +373,67 @@ CREATE POLICY "Users can manage own band tracks"
   );
 
 -- User playlists policies
-CREATE POLICY "Users can read own playlists"
-  ON user_playlists FOR SELECT
+DROP POLICY IF EXISTS "Users can read own playlists" ON user_playlists;
+CREATE POLICY "Users can read own playlists" ON user_playlists FOR SELECT
   USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can read public playlists"
-  ON user_playlists FOR SELECT
+DROP POLICY IF EXISTS "Users can read public playlists" ON user_playlists;
+CREATE POLICY "Users can read public playlists" ON user_playlists FOR SELECT
   USING (is_public = true);
 
-CREATE POLICY "Users can insert own playlists"
-  ON user_playlists FOR INSERT
+DROP POLICY IF EXISTS "Users can insert own playlists" ON user_playlists;
+CREATE POLICY "Users can insert own playlists" ON user_playlists FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Users can update own playlists"
-  ON user_playlists FOR UPDATE
+DROP POLICY IF EXISTS "Users can update own playlists" ON user_playlists;
+CREATE POLICY "Users can update own playlists" ON user_playlists FOR UPDATE
   USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can delete own playlists"
-  ON user_playlists FOR DELETE
+DROP POLICY IF EXISTS "Users can delete own playlists" ON user_playlists;
+CREATE POLICY "Users can delete own playlists" ON user_playlists FOR DELETE
   USING (auth.uid() = user_id);
 
 -- User library policies
-CREATE POLICY "Users can read own library"
-  ON user_library FOR SELECT
+DROP POLICY IF EXISTS "Users can read own library" ON user_library;
+CREATE POLICY "Users can read own library" ON user_library FOR SELECT
   USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can insert own library"
-  ON user_library FOR INSERT
+DROP POLICY IF EXISTS "Users can insert own library" ON user_library;
+CREATE POLICY "Users can insert own library" ON user_library FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Users can delete own library"
-  ON user_library FOR DELETE
+DROP POLICY IF EXISTS "Users can delete own library" ON user_library;
+CREATE POLICY "Users can delete own library" ON user_library FOR DELETE
   USING (auth.uid() = user_id);
 
 -- User follows policies
-CREATE POLICY "Users can read own follows"
-  ON user_follows FOR SELECT
+DROP POLICY IF EXISTS "Users can read own follows" ON user_follows;
+CREATE POLICY "Users can read own follows" ON user_follows FOR SELECT
   USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can insert own follows"
-  ON user_follows FOR INSERT
+DROP POLICY IF EXISTS "Users can insert own follows" ON user_follows;
+CREATE POLICY "Users can insert own follows" ON user_follows FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Users can delete own follows"
-  ON user_follows FOR DELETE
+DROP POLICY IF EXISTS "Users can delete own follows" ON user_follows;
+CREATE POLICY "Users can delete own follows" ON user_follows FOR DELETE
   USING (auth.uid() = user_id);
 
 -- OAuth connections policies
-CREATE POLICY "Users can read own connections"
-  ON oauth_connections FOR SELECT
+DROP POLICY IF EXISTS "Users can read own connections" ON oauth_connections;
+CREATE POLICY "Users can read own connections" ON oauth_connections FOR SELECT
   USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can insert own connections"
-  ON oauth_connections FOR INSERT
+DROP POLICY IF EXISTS "Users can insert own connections" ON oauth_connections;
+CREATE POLICY "Users can insert own connections" ON oauth_connections FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Users can update own connections"
-  ON oauth_connections FOR UPDATE
+DROP POLICY IF EXISTS "Users can update own connections" ON oauth_connections;
+CREATE POLICY "Users can update own connections" ON oauth_connections FOR UPDATE
   USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can delete own connections"
-  ON oauth_connections FOR DELETE
+DROP POLICY IF EXISTS "Users can delete own connections" ON oauth_connections;
+CREATE POLICY "Users can delete own connections" ON oauth_connections FOR DELETE
   USING (auth.uid() = user_id);
 
 -- ============================================================================
@@ -446,4 +450,118 @@ COMMENT ON TABLE user_playlists IS 'User-created playlists';
 COMMENT ON TABLE user_library IS 'User liked/saved tracks';
 COMMENT ON TABLE user_follows IS 'Users following bands';
 COMMENT ON TABLE oauth_connections IS 'OAuth tokens for Spotify/Apple/YouTube';
+
+
+-- ==========================================
+-- Recommendations Function
+-- ==========================================
+
+-- Function to find similar tracks using pgvector
+-- This function uses cosine similarity to find tracks similar to a user's taste_vector
+
+CREATE OR REPLACE FUNCTION match_tracks(
+  query_embedding vector(768),
+  match_threshold float DEFAULT 0.7,
+  match_count int DEFAULT 10
+)
+RETURNS TABLE (
+  id uuid,
+  url text,
+  duration integer,
+  explanation text,
+  distance float
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    gt.id,
+    gt.url,
+    gt.duration,
+    gt.explanation,
+    1 - (gt.user_id::text <-> query_embedding::text::vector) as distance
+  FROM generated_tracks gt
+  WHERE gt.status = 'completed'
+  ORDER BY gt.user_id::text <-> query_embedding::text::vector
+  LIMIT match_count;
+END;
+$$;
+
+-- Alternative: Match against embeddings table for real music
+CREATE OR REPLACE FUNCTION match_embeddings(
+  query_embedding vector(768),
+  match_threshold float DEFAULT 0.7,
+  match_count int DEFAULT 10
+)
+RETURNS TABLE (
+  id uuid,
+  track_id text,
+  track_name text,
+  artist text,
+  vector vector(768),
+  distance float
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    e.id,
+    e.track_id,
+    e.track_name,
+    e.artist,
+    e.vector,
+    1 - (e.vector <=> query_embedding) as distance
+  FROM embeddings e
+  WHERE 1 - (e.vector <=> query_embedding) > match_threshold
+  ORDER BY e.vector <=> query_embedding
+  LIMIT match_count;
+END;
+$$;
+
+
+-- ==========================================
+-- Storage Setup
+-- ==========================================
+
+-- Supabase Storage Setup
+-- Run this in Supabase SQL Editor to set up audio storage bucket
+
+-- Create audio bucket
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('audio', 'audio', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Set up RLS policies for audio bucket
+DROP POLICY IF EXISTS "Public audio access" ON storage.objects;
+CREATE POLICY "Public audio access" ON storage.objects FOR SELECT
+USING (bucket_id = 'audio');
+
+DROP POLICY IF EXISTS "Authenticated users can upload audio" ON storage.objects;
+CREATE POLICY "Authenticated users can upload audio" ON storage.objects FOR INSERT
+WITH CHECK (
+  bucket_id = 'audio' AND
+  auth.role() = 'authenticated'
+);
+
+DROP POLICY IF EXISTS "Users can update their own audio" ON storage.objects;
+CREATE POLICY "Users can update their own audio" ON storage.objects FOR UPDATE
+USING (
+  bucket_id = 'audio' AND
+  auth.uid()::text = (storage.foldername(name))[1]
+);
+
+DROP POLICY IF EXISTS "Users can delete their own audio" ON storage.objects;
+CREATE POLICY "Users can delete their own audio" ON storage.objects FOR DELETE
+USING (
+  bucket_id = 'audio' AND
+  auth.uid()::text = (storage.foldername(name))[1]
+);
+
+-- Grant permissions
+GRANT SELECT ON storage.objects TO authenticated;
+GRANT INSERT ON storage.objects TO authenticated;
+GRANT UPDATE ON storage.objects TO authenticated;
+GRANT DELETE ON storage.objects TO authenticated;
 
